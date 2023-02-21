@@ -47,7 +47,7 @@ scene.environment = environmentMap
  * Models
  */
 gltfLoader.load(
-    '/models/FlightHelmet/glTF/baba_NEW.glb',
+    '/models/baba_NEW_v2.glb',
     (gltf) => {
         gltf.scene.scale.set(10, 10, 10)
         gltf.scene.position.set(0, - 4, 0)
