@@ -17,3 +17,26 @@ body
     left: 0;
     outline: none;
 }
+
+canvas {
+	position: relative;
+	z-index: -1;
+}
+
+button {
+	-webkit-appearance: none;	
+	font-family: Courier;
+	font-size: 12pt;
+	text-align: center;
+	position: absolute;
+	left:40%;
+	top:40%;
+	min-width: 80px;
+	border-radius: 0;
+	z-index: 1;
+}
+/* 
+.pauseButton {
+	right: 2000px;
+	top: 1000px;
+} */
