@@ -10,6 +10,17 @@ const sizes = {
   height: window.innerHeight
 }
 
+var button = false;
+
+const audio = new Audio('/sound/flamethrower.wav')
+
+document.getElementById("fireButton").onclick = function () { 
+  if (button) {
+    button = false
+  } else {
+    button = true
+  }
+}
 
 const _VS = `
 uniform float pointMultiplier;
@@ -245,6 +256,11 @@ class ParticleSystem {
       return 0;
     });
   }
+  Clean(timeElapsed) {
+    this._particles = [];
+    this._UpdateParticles(timeElapsed);
+    this._UpdateGeometry();
+  }
 
   Step(timeElapsed) {
     this._AddParticles(timeElapsed);
@@ -379,9 +395,16 @@ class ParticleSystemDemo {
 
   _Step(timeElapsed) {
     // FIRE SPEED
-    const timeElapsedS = timeElapsed * 0.0008;
-
-    this._particles.Step(timeElapsedS);
+    const timeElapsedS = timeElapsed * 0.0005;
+    if(button) {
+      this._particles.Step(timeElapsedS);
+      audio.play();
+    } 
+    else {
+      this._particles.Clean(timeElapsedS)
+      audio.pause();
+      audio.currentTime = 0;
+    }
   }
 }
 
