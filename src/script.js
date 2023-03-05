@@ -3,12 +3,15 @@ import * as dat from 'lil-gui'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-const gui = new dat.GUI();
+// const gui = new dat.GUI();
+
+const canvas = document.querySelector('canvas.webgl');
 
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight
 }
+
 
 var button = false;
 
@@ -275,19 +278,41 @@ class ParticleSystemDemo {
   }
 
   _Initialize() {
-    this._threejs = new THREE.WebGLRenderer({
+    // this._threejs = new THREE.WebGLRenderer({
+    //   antialias: true,
+    // });
+    this._threejs = new THREE.WebGLRenderer({canvas: canvas,
       antialias: true,
     });
     this._threejs.shadowMap.enabled = true;
     this._threejs.shadowMap.type = THREE.PCFSoftShadowMap;
-    this._threejs.setPixelRatio(window.devicePixelRatio);
+    // this._threejs.setPixelRatio(window.devicePixelRatio);
+    this._threejs.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     this._threejs.setSize(window.innerWidth, window.innerHeight);
 
-    document.body.appendChild(this._threejs.domElement);
+    this._threejs.physicallyCorrectLights = true; 
+    this._threejs.toneMapping = THREE.ACESFilmicToneMapping;
+    this._threejs.outputEncoding = THREE.sRGBEncoding
+
+    // Update renderer
+    this._threejs.setSize(sizes.width, sizes.height)
+    this._threejs.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    // document.body.appendChild(this._threejs.domElement);
+
+    // window.addEventListener('resize', () => {
+    //   this._OnWindowResize();
+    // }, false);
 
     window.addEventListener('resize', () => {
-      this._OnWindowResize();
-    }, false);
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+  
+
+
+})
 
     const fov = 75;
     const aspect = sizes.width / sizes.height;
@@ -296,17 +321,22 @@ class ParticleSystemDemo {
     this._camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.set(25, 10, 0);
 
+    // Update camera
+    this._camera.aspect = sizes.width / sizes.height
+    this._camera.updateProjectionMatrix()
+
     this._scene = new THREE.Scene();
 
-    let light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
-    light.position.set(-5, 18.5, -20);
-    light.target.position.set(0, 0, 0);
+    let light = new THREE.DirectionalLight('#ffffff', 3);
+    light.position.set(0.25, 3, - 2.25);
+    // light.target.position.set(0, 0, 0);
+    light.shadow.camera.far = 15;
     light.castShadow = true;
     // light.shadow.bias = -0.001;
     // light.shadow.mapSize.width = 2048;
     // light.shadow.mapSize.height = 2048;
     // light.shadow.camera.near = 0.1;
-    light.shadow.camera.far = 15.0;
+    // light.shadow.camera.far = 15.0;
     // light.shadow.camera.near = 0.5;
     // light.shadow.camera.far = 500.0;
     // light.shadow.camera.left = 100;
@@ -315,18 +345,19 @@ class ParticleSystemDemo {
     // light.shadow.camera.bottom = -100;
     this._scene.add(light);
 
-    gui.add(light, 'intensity').min(0).max(10).step(0.001).name('dir lightIntensity')
-    gui.add(light.position, 'x').min(- 20).max(20).step(0.01).name('lightX')
-    gui.add(light.position, 'y').min(- 20).max(20).step(0.01).name('lightY')
-    gui.add(light.position, 'z').min(- 20).max(20).step(0.01).name('lightZ')
+    // gui.add(light, 'intensity').min(0).max(10).step(0.001).name('dir lightIntensity')
+    // gui.add(light.position, 'x').min(- 20).max(20).step(0.01).name('lightX')
+    // gui.add(light.position, 'y').min(- 20).max(20).step(0.01).name('lightY')
+    // gui.add(light.position, 'z').min(- 20).max(20).step(0.01).name('lightZ')
 
     let light2 = new THREE.AmbientLight(0x101010);
-    gui.add(light, 'intensity').min(0).max(10).step(0.001).name('amb lightIntensity')
+    // gui.add(light, 'intensity').min(0).max(10).step(0.001).name('amb lightIntensity')
     this._scene.add(light2);
 
     const controls = new OrbitControls(
-      this._camera, this._threejs.domElement);
+      this._camera, canvas);
     controls.target.set(0, 0, 0);
+    this._camera.position.set(15,8,-10);
     controls.update();
 
     const loader = new THREE.CubeTextureLoader();
@@ -338,7 +369,10 @@ class ParticleSystemDemo {
       '/textures/environmentMaps/white/0.jpg',
       '/textures/environmentMaps/white/0.jpg'
     ]);
+    texture.encoding = THREE.sRGBEncoding;
+
     this._scene.background = texture;
+    // this._scene.environment = texture;
 
     this._particles = new ParticleSystem({
         parent: this._scene,
@@ -349,7 +383,7 @@ class ParticleSystemDemo {
 
     this._previousRAF = null;
     this._RAF();
-  }
+  } 
 
   _LoadModel() {
     const loader1 = new GLTFLoader();
@@ -360,6 +394,7 @@ class ParticleSystemDemo {
       gltf.scene.scale.set(3.0, 3.0, 3.0); 
       gltf.scene.position.setY(-0.7);
       this._scene.add(gltf.scene);
+      // _updateAllMaterials();
     });
     const loader2 = new GLTFLoader();
     loader2.load('/models/area.glb', (gltf) => {
@@ -370,9 +405,21 @@ class ParticleSystemDemo {
       gltf.scene.position.setY(1.2);
       gltf.scene.position.setZ(24.0);
       this._scene.add(gltf.scene);
+      // _updateAllMaterials();
     });
   }
 
+  _UpdateAllMaterials() {
+    scene.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+            child.material.envMap = environmentMap
+            child.material.envMapIntensity = 2.5
+            child.material.envMapIntensity = debugObject.envMapIntensity
+            child.castShadow = true
+            child.receiveShadow = true
+        }
+    })
+}
   _OnWindowResize() {
     this._camera.aspect = window.innerWidth / window.innerHeight;
     this._camera.updateProjectionMatrix();

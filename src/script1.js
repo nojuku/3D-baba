@@ -26,6 +26,12 @@ void main() {
   gl_FragColor = texture2D(diffuseTexture, coords) * vColour;
 }`;
 
+const canvas = document.querySelector('canvas.webgl')
+
+const sizes = {
+  width: window.innerWidth,
+  height: window.innerHeight
+}
 
 // PARTICLES
 
@@ -255,7 +261,10 @@ class BasicWorldDemo {
   }
 
   _Initialize() {
-    this._threejs = new THREE.WebGLRenderer({
+    // this._threejs = new THREE.WebGLRenderer({
+    //   antialias: true,
+    // });
+    this._threejs = new THREE.WebGLRenderer({canvas: canvas,
       antialias: true,
     });
     this._threejs.shadowMap.enabled = true;
@@ -263,11 +272,11 @@ class BasicWorldDemo {
     this._threejs.setPixelRatio(window.devicePixelRatio);
     this._threejs.setSize(window.innerWidth, window.innerHeight);
 
-    document.body.appendChild(this._threejs.domElement);
+    // document.body.appendChild(this._threejs.domElement);
 
     window.addEventListener('resize', () => {
       this._OnWindowResize();
-    }, false);
+    }, false);  
 
     const fov = 60;
     const aspect = 1920 / 1080;
@@ -298,8 +307,10 @@ class BasicWorldDemo {
     light = new THREE.AmbientLight(0x101010);
     this._scene.add(light);
 
+    // const controls = new OrbitControls(
+    //   this._camera, this._threejs.domElement);
     const controls = new OrbitControls(
-      this._camera, this._threejs.domElement);
+      this._camera, canvas);
     controls.target.set(0, 20, 0);
     controls.update();
 

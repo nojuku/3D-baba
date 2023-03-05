@@ -10,27 +10,25 @@ body
     overflow: hidden;
 }
 
-.webgl
+
+
+#webgl
 {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     outline: none;
+	z-index: -1;
 }
 
-canvas {
+/* .buttonContainer{
 	position: relative;
-	display: block;
-	z-index: 1;
-}
+} */
 
+#fireButton {
+	background-color: #4CAF50;
+	position: relative;
+	left: 50%;
+	right: 50%;
 
-.fireButton {
-	position: absolute;
-	display: block;
-	text-align: center;
-	top: 0px;
-	width: 100%;
-	top: 500px;
-	z-index: 2'
 } 
